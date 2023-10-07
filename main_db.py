@@ -46,9 +46,9 @@ def data_order(rack: int, shelf: int, category: str, quantity: int, order_id: st
 
 data_rack = 4
 data_shelf = 3
-data_category = 'каска'
-data_quantity = 134
-order = '56E-456'
+data_category = 'мяч'
+data_quantity = 12
+order = 'YW8-99'
 # print(data_order(data_rack, data_shelf, data_category, data_quantity, order))
 conn.commit()
 
@@ -102,6 +102,8 @@ def data_racks_shelf(rack: int, shelf: int):
 
 data_rack = 4
 data_shelf = 3
+
+
 # print(data_racks_shelf(data_rack, data_shelf))
 
 
@@ -118,8 +120,72 @@ def data_racks(rack: int):
 
 
 data_rack = 4
-print(data_racks(data_rack))
 
+
+# print(data_racks(data_rack))
+
+#
+def add_quantity(count: int, order_id: str, rack: int, shelf: int, category: str):
+    """
+    Функция добавления определённого количества материала в заказе
+    :param count:
+    :param order_id:
+    :param rack:
+    :param shelf:
+    :param category:
+    :return:
+    """
+    """
+    Функция для изменения
+    :param count:
+    :param order_id:
+    :param rack:
+    :param shelf:
+    :param category:
+    :return:
+    """
+    with conn.cursor() as cur:
+        select_query = """UPDATE order_information SET quantity = quantity + %s WHERE order_id = %s AND rack = %s 
+        AND shelf = %s AND category = %s"""
+        cur.execute(select_query, (count, order_id, rack, shelf, category))
+        return f'Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, увеличино на {count}'
+
+
+number_order = 'YW8-99'
+order_category = 'гвозди'
+order_rack = 1
+order_shelf = 1
+order_count = 333
+# print(add_quantity(order_count, number_order, order_rack, order_shelf, order_category))
+conn.commit()
+
+
+def subtract_the_amount(count: int, order_id: str, rack: int, shelf: int, category: str):
+    """
+    Функция уменьшения определённого количества материала в заказе
+    :param count:
+    :param order_id:
+    :param rack:
+    :param shelf:
+    :param category:
+    :return:
+    """
+    with conn.cursor() as cur:
+        select_query = """UPDATE order_information SET quantity = quantity - %s WHERE order_id = %s AND rack = %s 
+        AND shelf = %s AND category = %s"""
+        cur.execute(select_query, (count, order_id, rack, shelf, category))
+        return f'Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}'
+
+
+number_order = 'YW8-99'
+order_category = 'гвозди'
+order_rack = 1
+order_shelf = 1
+order_count = 333
+# print(subtract_the_amount(order_count, number_order, order_rack, order_shelf, order_category))
+conn.commit()
+
+#
 
 # def search_data(order_id):
 #     with conn.cursor() as cur:

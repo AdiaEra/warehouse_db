@@ -1,7 +1,7 @@
 import psycopg2
 
 with psycopg2.connect(user="postgres",
-                      password="Hun$917&305TpS",  # host="127.0.0.1",
+                      password="Hun$917&305TpS",
                       port="5432",
                       database="warehouse_db") as conn:
     def create_db():
@@ -15,7 +15,7 @@ with psycopg2.connect(user="postgres",
                                 );
                                 CREATE TABLE IF NOT EXISTS order_information(
                                 id SERIAL PRIMARY KEY,
-                                rack INTEGER NOT NULL,                 
+                                rack INTEGER NOT NULL,
                                 shelf INTEGER NOT NULL,
                                 category VARCHAR(200) NOT NULL,
                                 quantity INTEGER NOT NULL,
@@ -40,6 +40,7 @@ with psycopg2.connect(user="postgres",
                 CASCADE"""
             cur.execute(delete_query)
             return 'База данных удалена'
+
 
     # print(delete_db())
     conn.commit()
