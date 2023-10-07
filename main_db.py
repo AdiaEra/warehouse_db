@@ -135,15 +135,6 @@ def add_quantity(count: int, order_id: str, rack: int, shelf: int, category: str
     :param category:
     :return:
     """
-    """
-    Функция для изменения
-    :param count:
-    :param order_id:
-    :param rack:
-    :param shelf:
-    :param category:
-    :return:
-    """
     with conn.cursor() as cur:
         select_query = """UPDATE order_information SET quantity = quantity + %s WHERE order_id = %s AND rack = %s 
         AND shelf = %s AND category = %s"""
@@ -185,17 +176,3 @@ order_count = 333
 # print(subtract_the_amount(order_count, number_order, order_rack, order_shelf, order_category))
 conn.commit()
 
-#
-
-# def search_data(order_id):
-#     with conn.cursor() as cur:
-#         select_query = """SELECT category, quantity FROM order_information WHERE order_id = %s"""
-#         cur.execute(select_query, (order_id,))
-#         res = cur.fetchall()
-#         for row in res:
-#             print("category =", row[0], )
-#             print("quantity =", row[1], "\n")
-#
-#
-# order = 'YW8-99'
-# print(search_data(order))
