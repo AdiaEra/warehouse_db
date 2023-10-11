@@ -77,7 +77,7 @@ data_quantity = 430
 conn.commit()
 
 
-def search_id(rack: str, shelf: int, category: str):
+def search_id(rack: str, shelf: int, category: str):    # поиск id (функция ниже(data_order_number) - для записи номера заказа по найденному id)
     """
     Функция вывода id по заданным параметрам
     :param rack: стеллаж
