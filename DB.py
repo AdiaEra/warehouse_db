@@ -15,12 +15,15 @@ with psycopg2.connect(user="postgres",
                                 );
                                 CREATE TABLE IF NOT EXISTS order_information(
                                 id SERIAL PRIMARY KEY,
-                                rack INTEGER NOT NULL,
+                                rack VARCHAR(20) NOT NULL,
                                 shelf INTEGER NOT NULL,
                                 category VARCHAR(200) NOT NULL,
                                 quantity INTEGER NOT NULL,
-                                order_id VARCHAR(20) NOT NULL REFERENCES order_number(order_id)
-                                ON DELETE CASCADE)"""
+                                order_id VARCHAR(20) REFERENCES order_number(order_id)
+                                ON DELETE CASCADE, 
+                                type VARCHAR(40),
+                                status VARCHAR(20)
+                                )"""
             cur.execute(create_query)
             return 'База данных создана'
 

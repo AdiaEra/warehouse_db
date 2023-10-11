@@ -23,12 +23,12 @@ def add_order(order_id):
         return 'Новый заказ добавлен'
 
 
-order = '56E-456'
+order = 'YQ-1'
 # print(add_order(order))
 conn.commit()
 
 
-def data_order(rack: int, shelf: int, category: str, quantity: int, order_id: str):
+def data_order(rack: str, shelf: int, category: str, quantity: int, order_id: str):
     """
     Функция заполнения таблицы order_information с информацией по заказу
     :param rack: номер стеллажа
@@ -44,12 +44,78 @@ def data_order(rack: int, shelf: int, category: str, quantity: int, order_id: st
         return f'Информация по заказу {order_id} записана'
 
 
-data_rack = 4
-data_shelf = 3
-data_category = 'мяч'
-data_quantity = 12
-order = 'YW8-99'
+data_rack = 'А-1'
+data_shelf = 1
+data_category = 'свечи автомобильные'
+data_quantity = 430
+order = 'YQ-1'
 # print(data_order(data_rack, data_shelf, data_category, data_quantity, order))
+conn.commit()
+
+
+def data_without_order(rack: str, shelf: int, category: str, quantity: int):
+    """
+    Функция заполнения таблицы order_information без номера заказа
+    :param rack: номер стеллажа
+    :param shelf: номер полки
+    :param category: наименование материала
+    :param quantity: количество материала
+    :return: Информация записана
+    """
+    with conn.cursor() as cur:
+        insert_query = """INSERT INTO order_information(rack, shelf, category, quantity) VALUES (%s, %s, %s, %s)"""
+        cur.execute(insert_query, (rack, shelf, category, quantity))
+        return f'Информация записана'
+
+
+data_rack = 'А-1'
+data_shelf = 1
+data_category = 'свечи автомобильные'
+data_quantity = 430
+
+# print(data_without_order(data_rack, data_shelf, data_category, data_quantity))
+conn.commit()
+
+
+def search_id(rack: str, shelf: int, category: str):
+    """
+    Функция вывода id по заданным параметрам
+    :param rack: стеллаж
+    :param shelf: полка
+    :param category: наименование материала
+    :return: id
+    """
+    with conn.cursor() as cur:
+        insert_query = """SELECT id FROM order_information WHERE rack = %s AND shelf = %s AND category = %s"""
+        cur.execute(insert_query, (rack, shelf, category))
+        return cur.fetchone()
+
+
+data_rack = 'А-1'
+data_shelf = 1
+data_category = 'свечи автомобильные'
+data_quantity = 430
+
+
+# print(search_id(data_rack, data_shelf, data_category))
+
+
+def data_order_number(order_id: str, id: int):
+    """
+    Функция записи номера заказа в таблицу order_information по id
+    :param order_id: номер заказа
+    :param id: id
+    :return: Номер заказа добавлен
+    """
+    with conn.cursor() as cur:
+        insert_query = """UPDATE order_information SET order_id = %s WHERE id = %s"""
+        cur.execute(insert_query, (order_id, id))
+        return 'Номер заказа добавлен'
+
+
+data_id = 9
+order = 'TT-77'
+# print(data_order_number(order, data_id))
 conn.commit()
 
 
@@ -70,6 +136,23 @@ order = '34Y-ui'
 conn.commit()
 
 
+def delete_order(rack: str, shelf: int, category: str):
+    """
+    Функция удаления данных, по хранящимся материалам (без номера заказа)
+    :return: Данные удалёны из БД
+    """
+    with conn.cursor() as cur:
+        delete_query = """DELETE FROM order_number WHERE rack = %s
+        AND shelf = %s AND category = %s"""
+        cur.execute(delete_query, (rack, shelf, category))
+        return f'Данные удалёны из БД'
+
+
+order = '34Y-ui'
+# print(delete_order())
+conn.commit()
+
+
 def search_data(order_id):
     """
     Функция выводит информацию по наименованию и количеству заказа по номеру заказа
@@ -82,12 +165,12 @@ def search_data(order_id):
         return cur.fetchall()
 
 
-order = 'YW8-99'
+order = 'Yu-1'
 
 
-# print(search_data(order))
+print(search_data(order))
 
-def data_racks_shelf(rack: int, shelf: int):
+def data_racks_shelf(rack: str, shelf: int):
     """
     Функция выводит информацию по наименованию и количеству заказа по номеру стеллажа и полки, на которой лежит материал
     :param rack: номер стеллажа
@@ -107,7 +190,7 @@ data_shelf = 3
 # print(data_racks_shelf(data_rack, data_shelf))
 
 
-def data_racks(rack: int):
+def data_racks(rack: str):
     """
     Функция выводит информацию по наименованию и количеству заказа по номеру стеллажа, на котором лежит материал
     :param rack: номер стеллажа
@@ -125,7 +208,7 @@ data_rack = 4
 # print(data_racks(data_rack))
 
 #
-def add_quantity(count: int, order_id: str, rack: int, shelf: int, category: str):
+def add_quantity(count: int, order_id: str, rack: str, shelf: int, category: str):
     """
     Функция добавления определённого количества материала в заказе
     :param count:
@@ -135,26 +218,17 @@ def add_quantity(count: int, order_id: str, rack: int, shelf: int, category: str
     :param category:
     :return:
     """
-    """
-    Функция для изменения
-    :param count:
-    :param order_id:
-    :param rack:
-    :param shelf:
-    :param category:
-    :return:
-    """
     with conn.cursor() as cur:
-        select_query = """UPDATE order_information SET quantity = quantity + %s WHERE order_id = %s AND rack = %s 
+        select_query = """UPDATE order_information SET quantity = quantity + %s WHERE order_id = %s AND rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, order_id, rack, shelf, category))
         return f'Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, увеличино на {count}'
 
 
-number_order = 'YW8-99'
-order_category = 'гвозди'
-order_rack = 1
-order_shelf = 1
+number_order = 'Yu-1'
+order_category = 'переключатели'
+order_rack = 'E-1'
+order_shelf = 4
 order_count = 333
 # print(add_quantity(order_count, number_order, order_rack, order_shelf, order_category))
 conn.commit()
@@ -163,15 +237,15 @@ conn.commit()
 def subtract_the_amount(count: int, order_id: str, rack: int, shelf: int, category: str):
     """
     Функция уменьшения определённого количества материала в заказе
-    :param count:
-    :param order_id:
-    :param rack:
-    :param shelf:
-    :param category:
-    :return:
+    :param count: количество, на которое уменьшается материал
+    :param order_id: номер заказа
+    :param rack: номер стеллажа
+    :param shelf: номер полки
+    :param category: наименование материала
+    :return: Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}
     """
     with conn.cursor() as cur:
-        select_query = """UPDATE order_information SET quantity = quantity - %s WHERE order_id = %s AND rack = %s 
+        select_query = """UPDATE order_information SET quantity = quantity - %s WHERE order_id = %s AND rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, order_id, rack, shelf, category))
         return f'Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}'
@@ -185,7 +259,85 @@ order_count = 333
 # print(subtract_the_amount(order_count, number_order, order_rack, order_shelf, order_category))
 conn.commit()
 
-#
+
+def data_category():
+    """
+    Функция выдаёт список материалов, хранящихся на складе
+    :return: список материалов
+    """
+    with conn.cursor() as cur:
+        select_query = """SELECT category FROM order_information"""
+        cur.execute(select_query)
+        list_1 = []
+        for i in cur.fetchall():
+            for item in i:
+                list_1.append(item)
+        return list_1
+
+
+# print(data_category())
+
+def data_from_shelf(rack: str, shelf: int):
+    """
+    Функция выдаёт список материалов, хранящихся на полке определённого стеллажа
+    :param rack: стеллаж
+    :param shelf: полка
+    :return: список материалов
+    """
+    with conn.cursor() as cur:
+        select_query = """SELECT category FROM order_information WHERE rack = %s AND shelf = %s"""
+        cur.execute(select_query, (rack, shelf))
+        list_1 = []
+        for i in cur.fetchall():
+            for item in i:
+                list_1.append(item)
+        return list_1
+
+
+data_rack = 'E-2'
+data_shelf = 3
+
+
+# print(data_from_shelf(data_rack, data_shelf))
+
+
+def search_rack_shelf(category):
+    """
+    Функция поиска номера стеллажа и полки, на которой находится определённый материал
+    :param category: наименование материала
+    :return: номер стеллажа и полки
+    """
+    with conn.cursor() as cur:
+        select_query = """SELECT rack, shelf FROM order_information WHERE category = %s"""
+        cur.execute(select_query, (category,))
+        return cur.fetchone()  # в результате выдаёт картеж
+        # list_1 = []
+        # for i in cur.fetchall():
+        #     for item in i:
+        #         list_1.append(item)
+        # return list_1     # в результате выдаёт список
+
+
+data_category = 'каска'
+
+
+# print(search_rack_shelf(data_category))
+
+
+def search_rack_shelf_2(order_id):
+    """
+    Функция поиска номера стеллажа и полки, на которой находится определённый материал
+    :param category: наименование материала
+    :return: номер стеллажа и полки
+    """
+    with conn.cursor() as cur:
+        select_query = """SELECT rack, shelf FROM order_information WHERE order_id = %s"""
+        cur.execute(select_query, (order_id,))
+        return cur.fetchall()  # в результате выдаёт картеж
+
+
+order = 'Yu-1'
+# print(search_rack_shelf_2(order))
 
 # def search_data(order_id):
 #     with conn.cursor() as cur:
@@ -199,3 +351,22 @@ conn.commit()
 #
 # order = 'YW8-99'
 # print(search_data(order))
+
+
+# def search_id_1(rack: str, shelf: int, category: str, order_id: str):
+#     with conn.cursor() as cur:
+#         insert_query = """SELECT id FROM order_information WHERE rack = %s AND shelf = %s AND category = %s"""
+#         cur.execute(insert_query, (rack, shelf, category))
+#         if cur.fetchone():
+#             insert_query = """UPDATE order_information SET order_id = %s WHERE id = id"""
+#             cur.execute(insert_query, (order_id,))
+#             return 'ok'
+#
+#
+# data_rack = 'А-1'
+# data_shelf = 1
+# data_category = 'свечи автомобильные'
+# data_quantity = 430
+# order = 'Yu-1'
+# print(search_id_1(data_rack, data_shelf, data_category, order))
+# conn.commit()
