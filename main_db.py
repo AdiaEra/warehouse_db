@@ -1,3 +1,4 @@
+import psycopg2.extras
 from psycopg2.errors import UniqueViolation
 
 from DB import conn
@@ -178,19 +179,23 @@ def data_racks_shelf(rack: str, shelf: int):
     Функция выводит информацию по наименованию и количеству заказа по номеру стеллажа и полки, на которой лежит материал
     :param rack: номер стеллажа
     :param shelf: номер полки
-    :return: список материалов и их количества на конкретном стеллаже и полке
+    :return: список словарей материалов и их количества на конкретном стеллаже и полке
     """
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         select_query = """SELECT category, quantity FROM order_information WHERE rack = %s AND shelf = %s"""
         cur.execute(select_query, (rack, shelf))
-        return cur.fetchall()
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
 
 
-data_rack = 4
-data_shelf = 3
+data_rack = 'E-2'
+data_shelf = 2
 
 
-# print(data_racks_shelf(data_rack, data_shelf))
+print(data_racks_shelf(data_rack, data_shelf))
 
 
 def data_racks(rack: str):
@@ -300,7 +305,7 @@ def data_from_shelf(rack: str, shelf: int):
 data_rack = 'E-2'
 data_shelf = 2
 
-print(data_from_shelf(data_rack, data_shelf))
+# print(data_from_shelf(data_rack, data_shelf))
 
 
 def search_rack_shelf(category):
