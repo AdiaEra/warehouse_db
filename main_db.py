@@ -163,10 +163,14 @@ def search_data(order_id):
     :param order_id: номер заказа
     :return: список материалов и их количества
     """
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         select_query = """SELECT category, quantity FROM order_information WHERE order_id = %s"""
         cur.execute(select_query, (order_id,))
-        return cur.fetchall()
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
 
 
 order = 'Yu-1'
@@ -195,7 +199,7 @@ data_rack = 'E-2'
 data_shelf = 2
 
 
-print(data_racks_shelf(data_rack, data_shelf))
+# print(data_racks_shelf(data_rack, data_shelf))
 
 
 def data_racks(rack: str):
@@ -304,6 +308,7 @@ def data_from_shelf(rack: str, shelf: int):
 
 data_rack = 'E-2'
 data_shelf = 2
+
 
 # print(data_from_shelf(data_rack, data_shelf))
 
@@ -434,6 +439,27 @@ data_category = 'автошины'
 order_count = 44
 # print(add_quantity_without_order_number(order_count, data_rack, data_shelf, data_category))
 conn.commit()
+
+
+def search_by_category(category: str):
+    """
+    Функция поиска информации по наименованию материала
+    :param category: наименование материала
+    :return: список словарей с расположением, количеством и номером зааза (если есть)
+    """
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+        select_query = """SELECT rack, shelf, quantity, order_id FROM order_information WHERE category = %s"""
+        cur.execute(select_query, (category,))
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
+
+
+data_category = 'автошины'
+
+# print(search_by_category(data_category))
 
 # def search_data(order_id):
 #     with conn.cursor() as cur:
