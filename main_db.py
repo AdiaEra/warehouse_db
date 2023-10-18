@@ -1,3 +1,6 @@
+from pprint import pprint
+
+import pandas as pd
 import psycopg2.extras
 from psycopg2.errors import UniqueViolation
 
@@ -24,7 +27,7 @@ def add_order(order_id):
         return 'Новый заказ добавлен'
 
 
-order = 'YY-88'
+order = 'BT-77'
 # print(add_order(order))
 conn.commit()
 
@@ -45,11 +48,11 @@ def data_order(rack: str, shelf: int, category: str, quantity: int, order_id: st
         return f'Информация по заказу {order_id} записана'
 
 
-data_rack = 'А-1'
-data_shelf = 1
+data_rack = 'С-1'
+data_shelf = 7
 data_category = 'свечи автомобильные'
-data_quantity = 430
-order = 'YQ-1'
+data_quantity = 200
+order = 'BT-77'
 # print(data_order(data_rack, data_shelf, data_category, data_quantity, order))
 conn.commit()
 
@@ -459,7 +462,75 @@ def search_by_category(category: str):
 
 data_category = 'автошины'
 
+
 # print(search_by_category(data_category))
+
+
+def partial_search_by_order_number():
+    """
+    Функция поиска по частичному введению символов номера заказа
+    :return: список словарей с наименованием материала, его количеством, расположением (стеллаж, полка)
+    """
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+        select_query = f"""SELECT category, quantity, rack, shelf FROM order_information WHERE order_id ILIKE '{data_order}%'"""
+        cur.execute(select_query)
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
+
+
+data_order = 'Y'
+
+
+# print(partial_search_by_order_number())
+
+
+def partial_search_by_category():
+    """
+    Функция поиска по частичному введению символов наименования материала
+    :return: список словарей с наименованием материала, его количеством, расположением (стеллаж, полка), номером заказа (если есть)
+    """
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+        select_query = f"""SELECT category, quantity, rack, shelf, order_id FROM order_information WHERE category ILIKE '{data_category}%'"""
+        cur.execute(select_query)
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
+
+
+data_category = 'а'
+# print(partial_search_by_category())
+
+
+def all_data_csv():
+    """
+    Функция записи информации по складу в csv файл
+    игнорировать предупреждение для подключения, отличного от SQLAlchemy
+    смотрите: github.com/pandas-dev/pandas/issues/45660
+    """
+    file = pd.read_sql('SELECT category, quantity, rack, shelf, order_id FROM order_information', conn)
+    file.to_csv('data_warehouse.csv', index=False)
+    return 'информация по складу успешно записана в файл csv'
+
+
+# print(all_data_csv())
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # def search_data(order_id):
 #     with conn.cursor() as cur:
