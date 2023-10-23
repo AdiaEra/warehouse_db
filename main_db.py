@@ -231,13 +231,20 @@ def add_quantity(count: int, order_id: str, rack: str, shelf: int, category: str
     :param rack: номер стеллажа
     :param shelf: номер полки
     :param category: наименование материала
-    :return:
+    :return: список со словарём, где указано количество материала после добавления определённого количества
     """
     with conn.cursor() as cur:
         select_query = """UPDATE order_information SET quantity = quantity + %s WHERE order_id = %s AND rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, order_id, rack, shelf, category))
-        return f'Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, увеличино на {count}'
+        select = """SELECT quantity FROM order_information WHERE order_id = %s AND rack = %s
+                                AND shelf = %s AND category = %s"""
+        cur.execute(select, (order_id, rack, shelf, category))
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
 
 
 number_order = 'Yu-1'
@@ -257,13 +264,20 @@ def subtract_the_amount(count: int, order_id: str, rack: str, shelf: int, catego
     :param rack: номер стеллажа
     :param shelf: номер полки
     :param category: наименование материала
-    :return: Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}
+    :return: список со словарём, где указано количество материала после вычитания определённого количества
     """
     with conn.cursor() as cur:
         select_query = """UPDATE order_information SET quantity = quantity - %s WHERE order_id = %s AND rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, order_id, rack, shelf, category))
-        return f'Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}'
+        select = """SELECT quantity FROM order_information WHERE order_id = %s AND rack = %s
+                        AND shelf = %s AND category = %s"""
+        cur.execute(select, (order_id, rack, shelf, category))
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
 
 
 number_order = 'YW8-99'
@@ -403,13 +417,20 @@ def subtract_the_amount_without_order_number(count: int, rack: str, shelf: int, 
     :param rack: номер стеллажа
     :param shelf: номер полки
     :param category: наименование материала
-    :return: Количество материала "{category}" в заказе № {order_id}, хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}
+    :return: список со словарём, где указано количество материала после вычитания определённого количества
     """
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         select_query = """UPDATE order_information SET quantity = quantity - %s WHERE rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, rack, shelf, category))
-        return f'Количество материала "{category}", хранящегося на {shelf} полке {rack} стеллажа, уменьшено на {count}'
+        select = """SELECT quantity FROM order_information WHERE rack = %s
+                AND shelf = %s AND category = %s"""
+        cur.execute(select, (rack, shelf, category))
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
 
 
 data_rack = 'C-2'
@@ -427,18 +448,25 @@ def add_quantity_without_order_number(count: int, rack: str, shelf: int, categor
     :param rack: номер стеллажа
     :param shelf: номер полки
     :param category: наименование материала
-    :return:
+    :return: список со словарём, где указано количество материала после добавления определённого количества
     """
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         select_query = """UPDATE order_information SET quantity = quantity + %s WHERE rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, rack, shelf, category))
-        return f'Количество материала "{category}", хранящегося на {shelf} полке {rack} стеллажа, увеличино на {count}'
+        select = """SELECT quantity FROM order_information WHERE rack = %s
+                        AND shelf = %s AND category = %s"""
+        cur.execute(select, (rack, shelf, category))
+        res = cur.fetchall()
+        res_list = []
+        for row in res:
+            res_list.append(dict(row))
+        return res_list
 
 
-data_rack = 'C-2'
-data_shelf = 5
-data_category = 'автошины'
+data_rack = 'E-1'
+data_shelf = 4
+data_category = 'переключатели'
 order_count = 44
 # print(add_quantity_without_order_number(order_count, data_rack, data_shelf, data_category))
 conn.commit()
