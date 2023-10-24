@@ -233,7 +233,7 @@ def add_quantity(count: int, order_id: str, rack: str, shelf: int, category: str
     :param category: наименование материала
     :return: список со словарём, где указано количество материала после добавления определённого количества
     """
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         select_query = """UPDATE order_information SET quantity = quantity + %s WHERE order_id = %s AND rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, order_id, rack, shelf, category))
@@ -266,7 +266,7 @@ def subtract_the_amount(count: int, order_id: str, rack: str, shelf: int, catego
     :param category: наименование материала
     :return: список со словарём, где указано количество материала после вычитания определённого количества
     """
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
         select_query = """UPDATE order_information SET quantity = quantity - %s WHERE order_id = %s AND rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, order_id, rack, shelf, category))
@@ -423,6 +423,8 @@ def subtract_the_amount_without_order_number(count: int, rack: str, shelf: int, 
         select_query = """UPDATE order_information SET quantity = quantity - %s WHERE rack = %s
         AND shelf = %s AND category = %s"""
         cur.execute(select_query, (count, rack, shelf, category))
+        query = """DELETE FROM order_information WHERE quantity <= 0"""
+        cur.execute(query)
         select = """SELECT quantity FROM order_information WHERE rack = %s
                 AND shelf = %s AND category = %s"""
         cur.execute(select, (rack, shelf, category))
@@ -433,10 +435,10 @@ def subtract_the_amount_without_order_number(count: int, rack: str, shelf: int, 
         return res_list
 
 
-data_rack = 'C-2'
-data_shelf = 5
-data_category = 'автошины'
-order_count = 44
+data_rack = 'С-1'
+data_shelf = 7
+data_category = 'свечи автомобильные'
+order_count = 100
 # print(subtract_the_amount_without_order_number(order_count, data_rack, data_shelf, data_category))
 conn.commit()
 
@@ -467,7 +469,7 @@ def add_quantity_without_order_number(count: int, rack: str, shelf: int, categor
 data_rack = 'E-1'
 data_shelf = 4
 data_category = 'переключатели'
-order_count = 44
+order_count = 1170
 # print(add_quantity_without_order_number(order_count, data_rack, data_shelf, data_category))
 conn.commit()
 
@@ -531,6 +533,8 @@ def partial_search_by_category():
 
 
 data_category = 'а'
+
+
 # print(partial_search_by_category())
 
 
@@ -544,7 +548,6 @@ def all_data_csv():
     file.to_csv('data_warehouse.csv', index=False)
     return 'информация по складу успешно записана в файл csv'
 
-
 # print(all_data_csv())
 
 
@@ -557,7 +560,18 @@ def all_data_csv():
 
 
 
-
+# def delete_zero():
+#     """
+#     Функция удаляет из таблицы данные, где количество материала равно нулю
+#     :return: данные с нулевым количеством удалены
+#     """
+#     with conn.cursor() as cur:
+#         cur.execute("""DELETE FROM order_information WHERE quantity <= 0""")
+#         return 'данные с нулевым количеством удалены'
+#
+#
+# print(delete_zero())
+# conn.commit()
 
 
 # def search_data(order_id):
